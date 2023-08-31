@@ -1,8 +1,8 @@
 package ku.cs.Kafeine.controller;
 
-import ku.cs.Kafeine.model.MenuRequest;
+import ku.cs.Kafeine.entity.Category;
+import ku.cs.Kafeine.model.CategoryRequest;
 import ku.cs.Kafeine.service.CategoryService;
-import ku.cs.Kafeine.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,27 +12,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/menus")
-public class MenuController {
-    @Autowired
-    private MenuService menuService;
-
+@RequestMapping("/categories")
+public class CategoryController {
     @Autowired
     private CategoryService categoryService;
-    @GetMapping
-    public String getAllMenus(Model model){
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "menu-all";
-    }
 
     @GetMapping("/add")
-    public String getAddMenuPage(Model model){
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "menu-add";
+    public String getCategoryForm(Model model){
+        return "category-add";
     }
+
     @PostMapping("/add")
-    public String create(@ModelAttribute MenuRequest menu, Model model){
-        menuService.create(menu);
+    public String createCategory(@ModelAttribute CategoryRequest category,
+                                 Model model){
+        categoryService.createCategory(category);
         model.addAttribute("categories", categoryService.getAllCategories());
         return "redirect:/menus";
     }
