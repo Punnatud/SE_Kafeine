@@ -68,5 +68,14 @@ public class OrderService {
     public List<PurchaseOrder> getAllOrders(){
         return orderRepository.findAll();
     }
+    public PurchaseOrder getById(UUID orderId) {
+        return orderRepository.findById(orderId).get();
+    }
 
+
+    public void finishOrder(UUID orderId) {
+        PurchaseOrder record = orderRepository.findById(orderId).get();
+        record.setStatus(Status.FINISH);
+        orderRepository.save(record);
+    }
 }
