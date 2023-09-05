@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class MenuService {
@@ -26,6 +27,9 @@ public class MenuService {
         return menuRepository.findAll();
     }
 
+    public Menu getOnebyId(UUID id){
+        return menuRepository.findById(id).get();
+    }
     public void create(MenuRequest request){
         Menu record = modelMapper.map(request, Menu.class);
         Category category =

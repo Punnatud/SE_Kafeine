@@ -1,0 +1,72 @@
+package ku.cs.Kafeine.service;
+
+import ku.cs.Kafeine.common.Status;
+import ku.cs.Kafeine.entity.Menu;
+import ku.cs.Kafeine.entity.OrderItem;
+import ku.cs.Kafeine.entity.OrderItemKey;
+import ku.cs.Kafeine.entity.PurchaseOrder;
+import ku.cs.Kafeine.model.AddCartRequest;
+import ku.cs.Kafeine.repository.MenuRepository;
+import ku.cs.Kafeine.repository.OrderItemRepository;
+import ku.cs.Kafeine.repository.PurchaseOrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+public class OrderService {
+    @Autowired
+    private PurchaseOrderRepository orderRepository;
+    @Autowired
+    private OrderItemRepository itemRepository;
+    @Autowired
+    private MenuRepository menuRepository;
+
+    private UUID currentOrderId;
+
+    public PurchaseOrder getCurrentOrder(){
+        if(currentOrderId == null){
+            createNewOrder();
+        }
+        return orderRepository.findById(currentOrderId).get();
+    }
+
+    public void submitOrder(){
+        PurchaseOrder currentOrder = orderRepository.findById(currentOrderId).get();
+        currentOrder.setTimestamp(LocalDateTime.now());
+        currentOrder.setStatus(Status.CONFIRM);
+        orderRepository.save(currentOrder);
+        currentOrder = null;
+    }
+
+    public void createNewOrder(){
+        PurchaseOrder newOrder = new PurchaseOrder();
+        newOrder.setStatus(Status.ORDER);
+        PurchaseOrder record = orderRepository.save(newOrder);
+        currentOrderId = record.getId();
+    }
+
+    public void order(UUID menuId, AddCartRequest request){
+        if(currentOrderId == null){
+            createNewOrder();
+        }
+        PurchaseOrder currentOrder =
+                orderRepository.findById(currentOrderId).get();
+        Menu menu = menuRepository.findById(menuId).get();
+
+        OrderItem item = new OrderItem();
+        item.setId(new OrderItemKey(currentOrderId, menuId));
+        item.setPurchaseOrder(currentOrder);
+        item.setMenu(menu);
+        item.setQuantity(request.getQuantity());
+        itemRepository.save(item);
+
+    }
+    public List<PurchaseOrder> getAllOrders(){
+        return orderRepository.findAll();
+    }
+
+}
